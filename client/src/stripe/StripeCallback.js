@@ -24,7 +24,7 @@ const StripeCallback = () => {
                     type:"LOGGED_IN_USER",
                     payload:res.data,
                 })
-                window.location.href="/dashboard/seller"
+            window.location.href="/dashboard/seller"
             })
 
         }catch(err){
