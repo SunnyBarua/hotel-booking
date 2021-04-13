@@ -3,15 +3,16 @@ const jwt=require("jsonwebtoken")
 
 exports.register=async(req,res)=>{
     console.log(req.body)
+   try{
+    
     const {name,email,password}=req.body
     if(!name) return res.status(400).send('Name is required')
     if(!password || password.length <6) return res.status(400).send('Password is required and should be min 6 characters long')
 
    let userExist= await User.findOne({email}).exec()
    if(userExist) return res.status(400).send('Email is taken')
-
+    
    const user=new User(req.body)
-   try{
        await user.save()
        console.log('USER CREATED SUCCESSFULLY',user);
        return res.json({ok:true});
@@ -44,7 +45,10 @@ exports.login=async(req,res)=>{
                     name:user.name,
                     email:user.email,
                     createdAt:user.createdAt,
-                    updatedAt:user.updatedAt
+                    updatedAt:user.updatedAt,
+                    stripe_account_id:user.stripe_account_id,
+                    stripe_seller:user.stripe_seller,
+                    stripeSession:user.stripeSession,
                 },
             });
         });

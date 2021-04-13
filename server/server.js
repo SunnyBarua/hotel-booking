@@ -1,6 +1,7 @@
 const express=require("express")
 const router = require("./routes/auth")
 const stripeRouter = require("./routes/stripe")
+const hotelRouter=require("./routes/hotel")
 const cors=require("cors")
 const mongoose=require("mongoose")
 require('dotenv').config();
@@ -12,6 +13,7 @@ app.use(morgan("dev"));
 
 app.use("/api",router)
 app.use("/api",stripeRouter)
+app.use("/api",hotelRouter)
 
 mongoose.connect(process.env.DATABASE, {
     useNewUrlParser: true,
@@ -28,3 +30,5 @@ mongoose.connect(process.env.DATABASE, {
 const port=process.env.PORT || 4500
 
 app.listen(port,()=>console.log(`Server is runing on ${port}`))
+
+

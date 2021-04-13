@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import DashboardNav from '../components/DashboardNav'
@@ -6,11 +6,24 @@ import {HomeOutlined} from "@ant-design/icons"
 import ConnectNav from '../components/ConnectNav'
 import { createConnectAccount } from '../actions/stripe'
 import { toast } from 'react-toastify'
+import { deleteHotel, sellerHotels } from '../actions/hotel'
+import SmartCard from '../components/cards/SmartCard'
 
 const DashboardSeller = () => {
-
+   
     const {auth}=useSelector((state)=>({...state}));
     const [loading,setLoading]=useState(false)
+    const [hotels,setHotels]=useState([])
+
+    useEffect(()=>{
+        loadSellersHotels();
+
+    },[])
+
+    const loadSellersHotels=async()=>{
+        let {data}=await sellerHotels(auth.token)
+        setHotels(data)
+    }
 
     const handleClick=async()=>{
         setLoading(true);
@@ -24,6 +37,14 @@ const DashboardSeller = () => {
             setLoading(false);
         }
     };
+    const handleHotelDelete=async(hotelId)=>{
+        if(!window.confirm("Are you sure ?")) return;
+        deleteHotel(auth.token,hotelId).then((res)=>{
+            toast.success("Hotel Deleted")
+            loadSellersHotels();
+        });
+
+    }
     const connected=()=>(
         <div className="container-fluid">
            <div className="row">
@@ -34,6 +55,9 @@ const DashboardSeller = () => {
                    <Link to="/hotels/new" className="btn btn-primary">+ Add New</Link>
                </div>
            </div>
+           <div className="row">{hotels.map((hotel)=>(
+               <SmartCard key={hotel._id} hotel={hotel} showViewMoreButton={false} owner={true} handleHotelDelete={handleHotelDelete}/>
+           ))}</div>
         </div>
 
 )
@@ -62,9 +86,10 @@ const DashboardSeller = () => {
             <DashboardNav/>
         </div>
         {auth &&
-        auth.user &&
-        auth.user.stripe_seller &&
-        auth.user.stripe_seller.charges_enabled ?
+        auth.user 
+        &&
+        auth.user.stripe_seller 
+         ?
         connected():notConnected()}
         </>
     )
